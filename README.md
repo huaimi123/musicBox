@@ -1,9 +1,8 @@
-# XF音乐盒
+# XF音乐盒 Web点歌 Linux音箱播放
 
 
 一个在线音乐播放器<br>在线使用：[https://mu-jie.cc/musicBox/](https://mu-jie.cc/musicBox/)
 
-![pagePC](http://ali.mu-jie.cc/img/uipc.jpg)
 ![pageMbile](http://ali.mu-jie.cc/img/musicBoxUI.jpg)
 
 

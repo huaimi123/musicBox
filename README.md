@@ -17,6 +17,18 @@ from kw import kwFirstUrl
 kw.py来自某位未知大佬，详见 [#5](https://github.com/xfmujie/musicBox/issues/5)
 
 - **html文件夹：前端静态页面资源，可直接部署到服务器/虚拟主机上**
+Linux安装：apt-get install nginx
+将文件夹html和flask复制到/var/www/目录下
+另外安装：
+apt-get install python3 python3-flask python3-flask-cors python3-requests python3-vlc sqlite3 -y
+
+### 说明
+- **flask文件夹：转发前端请求的后端接口，使用了python的flask框架，提供了酷我和网易云的搜索、歌词、mp3的接口，网易云API用的是开源项目[NeteaseCloudMusicApi](https://github.com/Binaryify/NeteaseCloudMusicApi)，请到app.py查看详细说明**
+- 需要安装网易云API，在app.py 里修改 NeteaseCloudMusicApiBaseUrl = '你部署的NeteaseCloudMusicApi项目BaseUrl'
+- mian.js里需要修改 var BaseURL = '你服务器地址:9000'
+
+### 启动
+- 终端输入 python3 /var/www/flask/app.py
 
 ## 近期更新
 V3.2.1

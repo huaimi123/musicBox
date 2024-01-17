@@ -15,8 +15,8 @@ import sqlite3
 from flask import g
 
 app = Flask(__name__)
-DATABASE = '/var/www/flask/database.db'
 cors = CORS(app)
+DATABASE = '/var/www/flask/database.db'
 
 # 酷我
 @app.route('/search')

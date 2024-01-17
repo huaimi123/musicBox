@@ -10,22 +10,12 @@ if (window.location.port < '5500') console.log = function () { };
 // 实例化弹窗对象
 var popup = new Popup();
 
-
-
-
-///////////////////////// 创建一个自定义的播放器类，继承自Plyr/////////////// ////////////////////////////
 class MyPlyr extends Plyr {
-  // 重写play()方法
   play() {
        
     }
 }
-const player = new MyPlyr('#music');  //实例化
-
-
-
-
-//////////////////////////////////////////////我的代码结束//////////////////////////////////////////////////
+const player = new MyPlyr('#music');  
 
 //自动重试的请求函数
 function retryRequest(url, maxRetries = 5) {

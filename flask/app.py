@@ -1,6 +1,6 @@
 # 本py只提供了酷我和网易云的搜索、mp3链接、歌词接口
 
-from flask import Flask
+from flask import Flask,jsonify
 from flask import request
 from flask import abort
 from flask_cors import CORS
@@ -9,7 +9,13 @@ import json
 from kw import kwFirstUrl
 import re
 
+#我添加的
+import vlc
+import sqlite3
+from flask import g
+
 app = Flask(__name__)
+DATABASE = '/var/www/flask/database.db'
 cors = CORS(app)
 
 # 酷我
@@ -164,6 +170,129 @@ def wyyLrc():
     except:
         print(f'网易云获取歌词出错！rid: {rid}\nresponseText: {responseText}')
         return abort(500)
+
+
+
+# 创建全局的MediaPlayer对象
+media_player = None
+
+# VLC 音乐播放
+@app.route('/play-music', methods=['POST'])
+def play_music():
+    try:
+        # 声明全局变量
+        global media_player
+
+        # 如果已有歌曲在播放，停止先前的播放
+        if media_player is not None:
+            media_player.stop()
+
+        # 获取请求中的音频文件链接
+        data = request.json
+        filename = data.get('filename')
+
+        # 如果之前未创建过 就创建新的MediaPlayer对象并播放音乐
+        if media_player is None:
+            media_player = vlc.MediaPlayer(filename)
+            media_player.play()
+        # 否则media_player对象已经创建，使用set_media方法更新待播放的音频文件路径，并调用play方法来播放音乐
+        else:
+            media_player.set_media(vlc.Media(filename))
+            media_player.play()
+
+        return {'status': 'success', 'message': '音乐播放成功'}
+
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}
+
+
+
+# VLC 音乐播放暂停功能
+@app.route('/pause-music', methods=['POST'])
+def pause_music():
+    try:
+        # 声明全局变量
+        global media_player
+
+        # 检查是否存在正在播放的媒体
+        if media_player is not None:
+            # 如果当前处于播放状态，暂停音乐
+            if media_player.is_playing():
+                media_player.pause()
+                return {'status': 'success', 'message': '音乐已暂停'}
+            # 如果当前处于暂停状态，切换成播放状态
+            else:
+                media_player.play()
+                return {'status': 'success', 'message': '音乐已播放'}
+
+        return {'status': 'error', 'message': '没有正在播放的音乐'}
+
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}
+
+
+
+#保存歌单功能
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = sqlite3.connect(DATABASE)
+    return db
+
+@app.teardown_appcontext
+def close_db(error):
+    if hasattr(g, '_database'):
+        g._database.close()
+
+@app.route('/music-box-list/', methods=['GET', 'POST'])
+def musicBoxList():
+    if request.method == 'GET':
+        id = request.args.get('id')
+        result = get_music_box(id)
+        if result:
+            return jsonify(result)
+        else:
+            return jsonify({"error": "歌单不存在"})
+    elif request.method == 'POST':
+        music_list = request.json
+        result = save_music_box(music_list)
+        return jsonify(result)
+
+def get_music_box(id):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM musicBox WHERE ID = ?', (id,))
+    row = cursor.fetchone()
+    cursor.close()
+    if row is not None:
+        result = {
+            "ID": row[0],
+            "Name": row[1],
+            "List": json.loads(row[2])
+        }
+    else:
+        result = None
+    print(result)  # 添加打印语句
+    return result
+
+def save_music_box(music_list):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT ID FROM musicBox ORDER BY ID DESC LIMIT 1')
+    last_id = cursor.fetchone()
+    if last_id is None:
+        new_id = 10000
+    else:
+        new_id = last_id[0] + 1
+    music_name = music_list["name"]
+    display_list = music_list["list"]
+    cursor.execute('INSERT INTO musicBox (ID, Name, List) VALUES (?, ?, ?)', (new_id, music_name, json.dumps(display_list)))
+    conn.commit()
+    cursor.close()
+    return {"ID": new_id}
+
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=9000)

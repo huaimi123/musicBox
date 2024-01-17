@@ -8,13 +8,14 @@
 
 
 ### 说明
-- **flask文件夹：转发前端请求的后端接口，使用了python的flask框架，提供了酷我和网易云的搜索、歌词、mp3的接口，网易云API用的是开源项目[NeteaseCloudMusicApi](https://github.com/Binaryify/NeteaseCloudMusicApi)，请到app.py查看详细说明**
+- 使用 VLC 播放器，让连 接服务器的音箱 播放歌曲，web界面起到点歌作用
+- 歌词滚动，进度条，自动播放下一曲未做
+- 可嵌入homeassistant
 
-app.py中
-```py
-from kw import kwFirstUrl
-```
-kw.py来自某位未知大佬，详见 [#5](https://github.com/xfmujie/musicBox/issues/5)
+### 部署
+- **flask文件夹：转发前端请求的后端接口，使用了python的flask框架，提供了酷我和网易云的搜索、歌词、mp3的接口，网易云API用的是开源项目[NeteaseCloudMusicApi](https://github.com/Binaryify/NeteaseCloudMusicApi)，请到app.py查看详细说明**
+- 安装网易云API后，在app.py 里修改 NeteaseCloudMusicApiBaseUrl = '你部署的NeteaseCloudMusicApi项目BaseUrl'
+- mian.js里需要修改 var BaseURL = '你服务器地址:9000'
 
 - **html文件夹：前端静态页面资源，可直接部署到服务器/虚拟主机上**
 Linux安装：apt-get install nginx
@@ -22,13 +23,9 @@ Linux安装：apt-get install nginx
 另外安装：
 apt-get install python3 python3-flask python3-flask-cors python3-requests python3-vlc sqlite3 -y
 
-### 说明
-- **flask文件夹：转发前端请求的后端接口，使用了python的flask框架，提供了酷我和网易云的搜索、歌词、mp3的接口，网易云API用的是开源项目[NeteaseCloudMusicApi](https://github.com/Binaryify/NeteaseCloudMusicApi)，请到app.py查看详细说明**
-- 需要安装网易云API，在app.py 里修改 NeteaseCloudMusicApiBaseUrl = '你部署的NeteaseCloudMusicApi项目BaseUrl'
-- mian.js里需要修改 var BaseURL = '你服务器地址:9000'
-
 ### 启动
 - 终端输入 python3 /var/www/flask/app.py
+- 后台运行 nohup python3 /var/www/flask/app.py &
 
 ## 近期更新
 V3.2.1
